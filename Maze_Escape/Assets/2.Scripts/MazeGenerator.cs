@@ -1,23 +1,17 @@
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using UnityEngine.UI;
 
 public class MazeGenerator : MonoBehaviour
 {
     [Header("Maze Settings")]
-    private int mazeWidth;              // 미로의 가로 크기 (홀수로 설정) 이유 : 벽, 벽-길-벽 이어야 하는데 벽-길 이면 문제 발생
-    private int mazeHeight;             // 미로의 세로 크기
-    private int[,] maze;                // 미로 데이터를 저장하는 2D 배열 (0:벽, 1:길)
+    [SerializeField] private int mazeWidth = 45;        // 미로의 가로 크기 (홀수로 설정) 이유 : 벽, 벽-길-벽 이어야 하는데 벽-길 이면 문제 발생
+    [SerializeField] private int mazeHeight = 25;       // 미로의 세로 크기
+    private int[,] maze;                                // 미로 데이터를 저장하는 2D 배열 (0:벽, 1:길)
 
     [Header("UI Settings")]
-    public Transform mazeBoard;         // 미로를 그릴 부모 오브젝트 (Maze Board)
-    public GameObject cellPrefab;       // 셀을 나타낼 프리팹 (UI Image)
-
-    private void Awake()
-    {
-        mazeWidth = 45;
-        mazeHeight = 25;
-    }
+    [SerializeField] private Transform mazeBoard;       // 미로를 그릴 부모 오브젝트 (Maze Board)
+    [SerializeField] private GameObject cellPrefab;     // 셀을 나타낼 프리팹 (SpriteRenderer + BoxCollider2D)
 
     private void Start()
     {
@@ -48,12 +42,13 @@ public class MazeGenerator : MonoBehaviour
 
         // 시작점 설정 (홀수 좌표 시작) 이유 : 벽을 제거하고 길을 연결하는 데 필요한 규칙적인 간격을 유지할 수 있기 때문
         Vector2 currentCell = new Vector2(1, 1);
-        maze[(int)currentCell.x, (int)currentCell.y] = 1; // 시작점을 길로 설정
+        maze[(int)currentCell.x, (int)currentCell.y] = 1;   // 시작점
         stack.Push(currentCell);
 
         while (stack.Count > 0)
         {
             Vector2[] neighbors = GetUnvisitedNeighbors(currentCell);
+
             if (neighbors.Length > 0)
             {
                 // 인접한 방문하지 않은 셀이 있을 경우, 랜덤하게 선택
@@ -69,7 +64,7 @@ public class MazeGenerator : MonoBehaviour
             }
             else
             {
-                // 방문할 셀이 없으면 스택에서 이전 셀로 돌아간다
+                // 방문할 셀이 없으면 이전 셀로 돌아가기
                 currentCell = stack.Pop();
             }
         }
@@ -80,12 +75,12 @@ public class MazeGenerator : MonoBehaviour
     {
         List<Vector2> neighbors = new List<Vector2>();
 
-        // 상, 하, 좌, 우에 있는 셀들을 확인
-        Vector2[] possibleDirections = {
-            new Vector2(currentCell.x - 2, currentCell.y), // 왼쪽
-            new Vector2(currentCell.x + 2, currentCell.y), // 오른쪽
-            new Vector2(currentCell.x, currentCell.y - 2), // 아래
-            new Vector2(currentCell.x, currentCell.y + 2)  // 위
+        Vector2[] possibleDirections = 
+        {
+            new Vector2(currentCell.x - 2, currentCell.y),
+            new Vector2(currentCell.x + 2, currentCell.y),
+            new Vector2(currentCell.x, currentCell.y - 2),
+            new Vector2(currentCell.x, currentCell.y + 2)
         };
 
         foreach (Vector2 dir in possibleDirections)
@@ -103,64 +98,52 @@ public class MazeGenerator : MonoBehaviour
     // 현재 셀과 선택된 셀을 연결하는 함수
     private void RemoveWall(Vector2 currentCell, Vector2 chosenCell)
     {
-        int x = (int)currentCell.x;
-        int y = (int)currentCell.y;
-        int chosenX = (int)chosenCell.x;
-        int chosenY = (int)chosenCell.y;
+        int midX = (int)(currentCell.x + chosenCell.x) / 2;
+        int midY = (int)(currentCell.y + chosenCell.y) / 2;
 
-        if (x == chosenX)
-        {
-            // 세로 방향으로 벽 제거
-            maze[x, (y + chosenY) / 2] = 1;
-        }
-        else if (y == chosenY)
-        {
-            // 가로 방향으로 벽 제거
-            maze[(x + chosenX) / 2, y] = 1;
-        }
+        maze[midX, midY] = 1;
     }
 
-    // 미로를 GameObject로 그리기
+    // 미로 생성 및 배치
     private void DrawMaze()
     {
-        // MazeBoard의 크기 정보 가져오기
-        RectTransform mazeBoardRect = mazeBoard.GetComponent<RectTransform>();
-        float mazeBoardWidth = mazeBoardRect.rect.width;
-        float mazeBoardHeight = mazeBoardRect.rect.height;
+        // 화면 크기 계산
+        Camera mainCamera = Camera.main;
+        float screenWidthInWorld = mainCamera.orthographicSize * 2 * mainCamera.aspect;
+        float screenHeightInWorld = mainCamera.orthographicSize * 2;
 
-        // 각 셀의 크기를 MazeBoard 크기에 맞게 조정
-        float cellWidth = mazeBoardWidth / mazeWidth;
-        float cellHeight = mazeBoardHeight / mazeHeight;
+        float cellWidth = screenWidthInWorld / mazeWidth;
+        float cellHeight = screenHeightInWorld / mazeHeight;
 
-        // 위치 조정
-        Vector3 mazeBoardPosition = mazeBoardRect.localPosition;
-        float offsetX = -mazeBoardPosition.x - mazeBoardWidth / 2 + cellWidth / 2;
-        float offsetY = -mazeBoardPosition.y + mazeBoardHeight / 2 - cellHeight / 2;
+        // 미로의 시작 위치
+        Vector3 startPosition = new Vector3
+        (
+            -screenWidthInWorld / 2 + cellWidth / 2,
+            -screenHeightInWorld / 2 + cellHeight / 2,
+            0
+        );
 
-        // 미로를 그리기
+        // 미로 그리기
         for (int x = 0; x < mazeWidth; x++)
         {
             for (int y = 0; y < mazeHeight; y++)
             {
-                GameObject cell = Instantiate(cellPrefab, mazeBoard);
-
-                // 셀의 위치 설정 (Canvas 좌표계로 조정)
-                RectTransform cellRect = cell.GetComponent<RectTransform>();
-                cellRect.localPosition = new Vector3(offsetX + x * cellWidth, offsetY - y * cellHeight, 0);
-
-                // 셀 색상 설정 (0: 벽 -> 검정색, 1: 길 -> 흰색)
-                Image cellImage = cell.GetComponent<Image>();
-                if (cellImage != null)
+                // 벽
+                if (maze[x, y] == 0)
                 {
-                    cellImage.color = (maze[x, y] == 0) ? Color.black : Color.white;
-                }
+                    GameObject cell = Instantiate(cellPrefab, mazeBoard);
 
-                // 셀 크기 설정
-                cellRect.sizeDelta = new Vector2(cellWidth, cellHeight);
+                    cell.transform.position = new Vector3
+                    (
+                        startPosition.x + x * cellWidth,
+                        startPosition.y + y * cellHeight,
+                        0
+                    );
+
+                    cell.transform.localScale = new Vector3(cellWidth, cellHeight, 1);
+                }
             }
         }
     }
-
-
 
 }

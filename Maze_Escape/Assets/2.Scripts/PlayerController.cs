@@ -4,35 +4,36 @@ using UnityEngine;
 
 public class PlayerController : MonoBehaviour
 {
-    private float moveSpeed;            // 속도
-    private Vector2 movePosition;       // 좌표
+    [Header("Player Settings")]
+    [SerializeField] private float moveSpeed = 2f;  // 이동속도
+    private Vector2 moveInput;                      // 입력좌표
+    private Rigidbody2D rb;                         // Rigidbody2D 참조
 
     private void Awake()
     {
-        moveSpeed = 3f;
+        rb = GetComponent<Rigidbody2D>();
     }
 
     // 프레임 기반 호출 (사용자 입력 및 프레임 의존적인 작업에 적합)
     private void Update()
     {
-        movePosition = Vector2.zero;
+        moveInput = Vector2.zero;
 
-        // 대각선 이동을 제한하기 위해
+        // 대각선 이동 제한
         if (Input.GetAxisRaw("Horizontal") != 0)
         {
-            movePosition.x = Input.GetAxisRaw("Horizontal");
+            moveInput.x = Input.GetAxisRaw("Horizontal");
         }
         else if (Input.GetAxisRaw("Vertical") != 0)
         {
-            movePosition.y = Input.GetAxisRaw("Vertical");
+            moveInput.y = Input.GetAxisRaw("Vertical");
         }
     }
 
     // 프레임과 무관하게 일정하게 호출 (물리 연산 및 시간 독립적인 작업에 적합)
     private void FixedUpdate()
     {
-        transform.Translate(movePosition * moveSpeed * Time.fixedDeltaTime);
+        rb.velocity = moveInput.normalized * moveSpeed;
     }
-
 
 }
