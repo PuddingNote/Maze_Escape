@@ -22,9 +22,9 @@ public class MazeGenerator : MonoBehaviour
     {
         InitializeMaze();
         GenerateMaze();
-        DrawMaze();
-        PlaceExit();
-        PlacePlayer();
+        RenderMaze();
+        SpawnExit();
+        SpawnPlayer();
     }
 
     // 미로 초기화
@@ -47,11 +47,16 @@ public class MazeGenerator : MonoBehaviour
     {
         Stack<Vector2> stack = new Stack<Vector2>();
 
-        // 시작점 설정 (홀수 좌표 시작) 이유 : 벽을 제거하고 길을 연결하는 데 필요한 규칙적인 간격을 유지할 수 있기 때문
-        Vector2 currentCell = new Vector2(1, 1);
-        maze[(int)currentCell.x, (int)currentCell.y] = 1;   // 시작점
+        // 출구 위치를 DFS 시작점으로 설정
+        int exitX = mazeWidth / 2 - 1;
+        int exitY = mazeHeight - 2;
+        Vector2 currentCell = new Vector2(exitX, exitY);
+
+        // 출구 위치를 길로 설정
+        maze[(int)currentCell.x, (int)currentCell.y] = 1;
         stack.Push(currentCell);
 
+        // 미로 생성
         while (stack.Count > 0)
         {
             Vector2[] neighbors = GetUnvisitedNeighbors(currentCell);
@@ -61,8 +66,8 @@ public class MazeGenerator : MonoBehaviour
                 // 인접한 방문하지 않은 셀이 있을 경우, 랜덤하게 선택
                 Vector2 chosenCell = neighbors[Random.Range(0, neighbors.Length)];
 
-                // 선택된 셀과 현재 셀을 연결 (길을 만든다)
-                RemoveWall(currentCell, chosenCell);
+                // 선택된 셀과 현재 셀을 연결 (길 만들기)
+                CarvePathBetweenCells(currentCell, chosenCell);
 
                 // 선택된 셀을 길로 설정하고 스택에 추가
                 maze[(int)chosenCell.x, (int)chosenCell.y] = 1;
@@ -103,7 +108,7 @@ public class MazeGenerator : MonoBehaviour
     }
 
     // 현재 셀과 선택된 셀을 연결하는 함수
-    private void RemoveWall(Vector2 currentCell, Vector2 chosenCell)
+    private void CarvePathBetweenCells(Vector2 currentCell, Vector2 chosenCell)
     {
         int midX = (int)(currentCell.x + chosenCell.x) / 2;
         int midY = (int)(currentCell.y + chosenCell.y) / 2;
@@ -111,8 +116,8 @@ public class MazeGenerator : MonoBehaviour
         maze[midX, midY] = 1;
     }
 
-    // 미로 생성 및 배치
-    private void DrawMaze()
+    // 미로 생성
+    private void RenderMaze()
     {
         // 화면 크기 계산
         Camera mainCamera = Camera.main;
@@ -154,22 +159,21 @@ public class MazeGenerator : MonoBehaviour
     }
 
     // 출구 배치
-    private void PlaceExit()
+    private void SpawnExit()
     {
-        int exitX = mazeWidth / 2;
-        int exitY = mazeHeight - 2; // 최상단에 출구 배치
+        int exitX = mazeWidth / 2 - 1;
+        int exitY = mazeHeight - 2;
 
-        if (maze[exitX, exitY] == 1) // 길이 확인
-        {
-            Vector3 exitPosition = GetWorldPosition(exitX, exitY);
-            exitPosition.y -= 0.05f; // 일단 UI상으로 딱 맞는 위치 조정
+        // 월드 좌표 계산
+        Vector3 exitPosition = GetWorldPosition(exitX, exitY);
+        exitPosition.y -= 0.05f;
 
-            exitInstance = Instantiate(exitPrefab, exitPosition, Quaternion.identity, mazeBoard);
-        }
+        // 출구 인스턴스 생성
+        exitInstance = Instantiate(exitPrefab, exitPosition, Quaternion.identity, mazeBoard);
     }
 
     // 플레이어 배치
-    private void PlacePlayer()
+    private void SpawnPlayer()
     {
         Vector2Int playerPosition;
 
@@ -183,7 +187,7 @@ public class MazeGenerator : MonoBehaviour
                 playerPosition = new Vector2Int(randomX, randomY);
 
                 // 출구와 거리가 충분히 멀리 떨어져 있는지 확인
-                if (Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2)) > mazeWidth / 2)
+                if (Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2)) > mazeWidth / 3)
                 {
                     break;
                 }
