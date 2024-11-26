@@ -12,12 +12,19 @@ public class MazeGenerator : MonoBehaviour
     [Header("UI Settings")]
     [SerializeField] private Transform mazeBoard;       // 미로를 그릴 부모 오브젝트 (Maze Board)
     [SerializeField] private GameObject cellPrefab;     // 셀을 나타낼 프리팹 (SpriteRenderer + BoxCollider2D)
+    [SerializeField] private GameObject exitPrefab;     // 출구 프리팹
+    [SerializeField] private GameObject playerPrefab;   // 플레이어 프리팹
+
+    private GameObject exitInstance;                    // 출구 인스턴스
+    private GameObject playerInstance;                  // 플레이어 인스턴스
 
     private void Start()
     {
         InitializeMaze();
         GenerateMaze();
         DrawMaze();
+        PlaceExit();
+        PlacePlayer();
     }
 
     // 미로 초기화
@@ -144,6 +151,63 @@ public class MazeGenerator : MonoBehaviour
                 }
             }
         }
+    }
+
+    // 출구 배치
+    private void PlaceExit()
+    {
+        int exitX = mazeWidth / 2;
+        int exitY = mazeHeight - 2; // 최상단에 출구 배치
+
+        if (maze[exitX, exitY] == 1) // 길이 확인
+        {
+            Vector3 exitPosition = GetWorldPosition(exitX, exitY);
+            exitPosition.y -= 0.05f; // 일단 UI상으로 딱 맞는 위치 조정
+
+            exitInstance = Instantiate(exitPrefab, exitPosition, Quaternion.identity, mazeBoard);
+        }
+    }
+
+    // 플레이어 배치
+    private void PlacePlayer()
+    {
+        Vector2Int playerPosition;
+
+        do
+        {
+            int randomX = Random.Range(1, mazeWidth - 1);
+            int randomY = Random.Range(1, mazeHeight - 1);
+
+            if (maze[randomX, randomY] == 1) // 길인지 확인
+            {
+                playerPosition = new Vector2Int(randomX, randomY);
+
+                // 출구와 거리가 충분히 멀리 떨어져 있는지 확인
+                if (Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2)) > mazeWidth / 2)
+                {
+                    break;
+                }
+            }
+        } while (true);
+
+        Vector3 playerWorldPosition = GetWorldPosition(playerPosition.x, playerPosition.y);
+        playerInstance = Instantiate(playerPrefab, playerWorldPosition, Quaternion.identity);
+    }
+
+    // 월드 좌표 변환
+    private Vector3 GetWorldPosition(int x, int y)
+    {
+        Camera mainCamera = Camera.main;
+        float screenWidthInWorld = mainCamera.orthographicSize * 2 * mainCamera.aspect;
+        float screenHeightInWorld = mainCamera.orthographicSize * 2;
+
+        float cellWidth = screenWidthInWorld / mazeWidth;
+        float cellHeight = screenHeightInWorld / mazeHeight;
+
+        float startX = -screenWidthInWorld / 2 + cellWidth / 2;
+        float startY = -screenHeightInWorld / 2 + cellHeight / 2;
+
+        return new Vector3(startX + x * cellWidth, startY + y * cellHeight, 0);
     }
 
 }
