@@ -17,16 +17,12 @@ public class PlayerController : MonoBehaviour
     // 프레임 기반 호출 (사용자 입력 및 프레임 의존적인 작업에 적합)
     private void Update()
     {
-        moveInput = Vector2.zero;
+        // 이동 입력 (대각선 이동 제한)
+        moveInput = new Vector2(Input.GetAxisRaw("Horizontal"),Input.GetAxisRaw("Vertical"));
 
-        // 대각선 이동 제한
-        if (Input.GetAxisRaw("Horizontal") != 0)
+        if (moveInput.x != 0)
         {
-            moveInput.x = Input.GetAxisRaw("Horizontal");
-        }
-        else if (Input.GetAxisRaw("Vertical") != 0)
-        {
-            moveInput.y = Input.GetAxisRaw("Vertical");
+            moveInput.y = 0;
         }
     }
 
