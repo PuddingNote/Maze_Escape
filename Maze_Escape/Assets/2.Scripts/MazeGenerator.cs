@@ -10,6 +10,7 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField] private int mazeWidth = 45;        // 미로의 가로 크기 (홀수로 설정) 이유 : 벽, 벽-길-벽 이어야 하는데 벽-길 이면 문제 발생
     [SerializeField] private int mazeHeight = 25;       // 미로의 세로 크기
     private int[,] maze;                                // 미로 데이터를 저장하는 2D 배열 (0:벽, 1:길)
+    private float minDistanceFromExit = 15f;            // 출구와의 최소 거리 (플레이어 배치를 위해)
 
     [Header("UI Settings")]
     [SerializeField] private Transform mazeBoard;       // 미로를 그릴 부모 오브젝트 (Maze Board)
@@ -211,7 +212,7 @@ public class MazeGenerator : MonoBehaviour
                 playerPosition = new Vector2Int(randomX, randomY);
 
                 // 출구와 거리가 충분히 멀리 떨어져 있는지 확인
-                if (Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2)) > mazeWidth / 2)
+                if (Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2)) > minDistanceFromExit)
                 {
                     break;
                 }
