@@ -36,4 +36,14 @@ public class PlayerController : MonoBehaviour
         rb.velocity = moveInput.normalized * moveSpeed;
     }
 
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        GameObject exit = collision.gameObject;
+
+        if (exit.CompareTag("Exit"))
+        {
+            GameManager.Instance.CheckExitCollision(gameObject, exit);
+        }
+    }
+
 }

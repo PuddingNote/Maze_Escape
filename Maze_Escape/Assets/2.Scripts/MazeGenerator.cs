@@ -187,7 +187,7 @@ public class MazeGenerator : MonoBehaviour
                 playerPosition = new Vector2Int(randomX, randomY);
 
                 // 출구와 거리가 충분히 멀리 떨어져 있는지 확인
-                if (Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2)) > mazeWidth / 3)
+                if (Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2)) > mazeWidth / 2)
                 {
                     break;
                 }
@@ -196,6 +196,9 @@ public class MazeGenerator : MonoBehaviour
 
         Vector3 playerWorldPosition = GetWorldPosition(playerPosition.x, playerPosition.y);
         playerInstance = Instantiate(playerPrefab, playerWorldPosition, Quaternion.identity);
+
+        // 생성된 플레이어를 GameManager에 전달
+        GameManager.Instance.SetPlayer(playerInstance);
     }
 
     // 월드 좌표 변환
