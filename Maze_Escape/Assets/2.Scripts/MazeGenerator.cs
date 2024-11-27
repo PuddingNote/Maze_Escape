@@ -4,6 +4,8 @@ using UnityEngine;
 
 public class MazeGenerator : MonoBehaviour
 {
+    public static MazeGenerator Instance { get; private set; } // 싱글톤
+
     [Header("Maze Settings")]
     [SerializeField] private int mazeWidth = 45;        // 미로의 가로 크기 (홀수로 설정) 이유 : 벽, 벽-길-벽 이어야 하는데 벽-길 이면 문제 발생
     [SerializeField] private int mazeHeight = 25;       // 미로의 세로 크기
@@ -18,8 +20,30 @@ public class MazeGenerator : MonoBehaviour
     private GameObject exitInstance;                    // 출구 인스턴스
     private GameObject playerInstance;                  // 플레이어 인스턴스
 
-    private void Start()
+    private void Awake()
     {
+        if (Instance != null && Instance != this)
+        {
+            Destroy(gameObject);
+            return;
+        }
+        Instance = this;
+    }
+
+    public void StartMazeGenerate()
+    {
+        // 기존에 생성된 미로 삭제
+        foreach (Transform child in mazeBoard)
+        {
+            Destroy(child.gameObject);
+        }
+
+        // 기존 플레이어 제거
+        if (playerInstance != null)
+        {
+            Destroy(playerInstance);
+        }
+
         InitializeMaze();
         GenerateMaze();
         RenderMaze();

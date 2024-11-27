@@ -9,8 +9,10 @@ public class GameManager : MonoBehaviour
 
     [Header("UI Settings")]
     [SerializeField] private TextMeshProUGUI countdownText;     // 카운트다운 텍스트
-    [SerializeField] private GameObject countdownPanel;         // 카운트다운 패널
+    [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트 추가
+    [SerializeField] private GameObject uiPanel;                // ui 패널 (카운트다운, 스테이지 text 포함)
 
+    private int currentStage = 1;                               // 현재 스테이지
     private bool isGameActive = false;                          // 게임 진행 상태
     private PlayerController playerController;
 
@@ -26,10 +28,29 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        countdownPanel.SetActive(true);
+        MazeGenerator.Instance.StartMazeGenerate();
 
-        // 카운트다운 시작
+        stageText.text = "Stage " + currentStage;
         StartCoroutine(StartCountdown());
+    }
+
+    // 카운트다운 코루틴
+    private IEnumerator StartCountdown()
+    {
+        uiPanel.SetActive(true);
+        isGameActive = false;
+        if (playerController != null) playerController.enabled = false;
+
+        for (int i = 3; i > 0; i--)
+        {
+            countdownText.text = i.ToString();
+            yield return new WaitForSeconds(1);
+        }
+        uiPanel.SetActive(false);
+
+        // 게임 시작
+        isGameActive = true;
+        if (playerController != null) playerController.enabled = true;
     }
 
     // 플레이어 초기 설정
@@ -39,31 +60,44 @@ public class GameManager : MonoBehaviour
         playerController.enabled = false;
     }
 
-    // 카운트다운 코루틴
-    private IEnumerator StartCountdown()
-    {
-        for (int i = 3; i > 0; i--)
-        {
-            countdownText.text = i.ToString();
-            yield return new WaitForSeconds(1);
-        }
-        countdownPanel.SetActive(false);
-
-        // 게임 시작
-        isGameActive = true;
-        if (playerController != null) playerController.enabled = true;
-    }
-
     // 게임 종료 처리
     public void EndGame()
     {
         isGameActive = false;
 
+        // 스테이지가 10을 넘지 않으면, 다음 스테이지로 진행
+        if (currentStage < 10)
+        {
+            currentStage++;
+            StartNewStage();
+        }
+        else
+        {
 #if UNITY_EDITOR
-        UnityEditor.EditorApplication.isPlaying = false;
+            UnityEditor.EditorApplication.isPlaying = false;
 #else
         Application.Quit();
 #endif
+        }
+    }
+
+    // 새로운 스테이지 시작
+    private void StartNewStage()
+    {
+        // 스테이지 UI 업데이트
+        stageText.text = "Stage " + currentStage;
+
+        // 기존 플레이어 제거
+        if (playerController != null)
+        {
+            Destroy(playerController.gameObject);
+        }
+
+        // 미로 새로 생성 (초기 세팅 그대로 하면 됌)
+        MazeGenerator.Instance.StartMazeGenerate();
+
+        // 카운트다운 후 게임 시작
+        StartCoroutine(StartCountdown());
     }
 
     // 출구 충돌 확인
