@@ -26,9 +26,7 @@ public class GameManager : MonoBehaviour
 
     private void Start()
     {
-        // UI 초기화
         countdownPanel.SetActive(true);
-        countdownText.gameObject.SetActive(true);
 
         // 카운트다운 시작
         StartCoroutine(StartCountdown());
@@ -44,37 +42,22 @@ public class GameManager : MonoBehaviour
     // 카운트다운 코루틴
     private IEnumerator StartCountdown()
     {
-        int countdown = 3;
-
-        while (countdown > 0)
+        for (int i = 3; i > 0; i--)
         {
-            countdownText.text = countdown.ToString();
+            countdownText.text = i.ToString();
             yield return new WaitForSeconds(1);
-            countdown--;
         }
-
-        countdownText.gameObject.SetActive(false);
         countdownPanel.SetActive(false);
 
         // 게임 시작
         isGameActive = true;
-        if (playerController != null)
-        {
-            playerController.enabled = true;
-        }
+        if (playerController != null) playerController.enabled = true;
     }
 
     // 게임 종료 처리
     public void EndGame()
     {
-        //if (!isGameActive) return;
-
-        //isGameActive = false;
-
-        //if (playerController != null)
-        //{
-        //    playerController.enabled = false;
-        //}
+        isGameActive = false;
 
 #if UNITY_EDITOR
         UnityEditor.EditorApplication.isPlaying = false;
@@ -91,7 +74,5 @@ public class GameManager : MonoBehaviour
             EndGame();
         }
     }
-
-
 
 }
