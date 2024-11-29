@@ -41,6 +41,7 @@
 
 [2024-11-27]
 - feat: Tag 추가
+  - Add Exit, Player Tag
 - feat: GameManager
   - 카운트다운 기능 & UI 제작
   - 게임 종료 기능 제작 (Tag로 판별)
@@ -48,3 +49,21 @@
   - 게임 Stage 제작 (Stage 1~10)
   - 매 Stage마다 새로운 미로 생성
 </br>
+
+[2024-11-28]
+- feat: Tag 추가
+  - Add Enemy Tag
+</br>
+
+[2024-11-29]
+- feat: Add Enemy System
+  - Add Enemy Prefab
+  - A* 알고리즘을 사용해서 적AI가 출구까지의 최적의 경로를 계산해서 자동으로 이동하는 시스템 제작
+  - Player와 Enemy의 충돌 제거
+  - Stage가 증가할때마다 Enemy 속도 증가
+- feat: Add GameOver UI & System
+  - Enemy가 먼저 출구에 도달하면 GameOver
+  - GameOver UI : Restart, Quit 버튼 추가
+</br>
+
+
