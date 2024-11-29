@@ -34,6 +34,12 @@ public class EnemyController : MonoBehaviour
         {
             Debug.LogError("경로가 없음");
         }
+
+        // 스테이지에 맞게 이동속도 업데이트
+        if (GameManager.Instance != null)
+        {
+            UpdateMoveSpeed(GameManager.Instance.GetCurrentStage());
+        }
     }
 
     // 경로를 따라 이동하는 코루틴
@@ -53,6 +59,12 @@ public class EnemyController : MonoBehaviour
 
             currentPathIndex++;
         }
+    }
+
+    // 스테이지마다 이동속도 0.2f씩 증가
+    public void UpdateMoveSpeed(int stage)
+    {
+        moveSpeed = 0.5f + (stage - 1) * 0.2f;
     }
 
 

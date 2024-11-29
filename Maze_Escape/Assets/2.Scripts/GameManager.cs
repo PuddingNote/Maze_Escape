@@ -130,6 +130,12 @@ public class GameManager : MonoBehaviour
 
         MazeGenerator.Instance.NextMazeGenerate();
 
+        // 적의 이동속도 업데이트
+        if (enemyController != null)
+        {
+            enemyController.UpdateMoveSpeed(currentStage);
+        }
+
         StartCoroutine(StartCountdown());
     }
 
@@ -140,6 +146,12 @@ public class GameManager : MonoBehaviour
         {
             EndGame();
         }
+    }
+
+    // 스테이지 정보 반환 함수
+    public int GetCurrentStage()
+    {
+        return currentStage;
     }
 
 
