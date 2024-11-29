@@ -11,11 +11,11 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI countdownText;     // 카운트다운 텍스트
     [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트 추가
     [SerializeField] private GameObject uiPanel;                // ui 패널 (카운트다운, 스테이지 text 포함)
+    [SerializeField] private GameObject gameOverPanel;          // 게임오버 ui 패널
 
     [Header("Game Settings")]
     private int currentStage;                                   // 현재 스테이지
     private bool isGameActive;                                  // 게임 진행 상태
-
 
     private PlayerController playerController;
     private EnemyController enemyController;
@@ -45,6 +45,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator StartCountdown()
     {
         uiPanel.SetActive(true);
+        gameOverPanel.SetActive(false);
 
         isGameActive = false;
         if (playerController != null) 
@@ -154,5 +155,33 @@ public class GameManager : MonoBehaviour
         return currentStage;
     }
 
+    // 게임 오버 처리 함수 추가
+    public void GameOver()
+    {
+        isGameActive = false;
+
+        // 시간 멈추고 플레이어와 적의 조작 비활성화
+        Time.timeScale = 0;
+        if (playerController != null)
+        {
+            playerController.enabled = false;
+        }
+        if (enemyController != null)
+        {
+            enemyController.enabled = false;
+        }
+
+        gameOverPanel.SetActive(true);
+    }
+
+    // 게임 종료 버튼
+    public void QuitButton()
+    {
+#if UNITY_EDITOR
+        UnityEditor.EditorApplication.isPlaying = false;
+#else
+        Application.Quit();
+#endif
+    }
 
 }

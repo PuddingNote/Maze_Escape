@@ -67,5 +67,14 @@ public class EnemyController : MonoBehaviour
         moveSpeed = 0.5f + (stage - 1) * 0.2f;
     }
 
+    // 적이 출구에 닿으면 게임 오버 처리
+    private void OnTriggerEnter2D(Collider2D collision)
+    {
+        if (collision.CompareTag("Exit"))
+        {
+            GameManager.Instance.GameOver();
+        }
+    }
+
 
 }
