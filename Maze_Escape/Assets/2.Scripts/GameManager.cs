@@ -12,9 +12,13 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트 추가
     [SerializeField] private GameObject uiPanel;                // ui 패널 (카운트다운, 스테이지 text 포함)
 
-    private int currentStage = 1;                               // 현재 스테이지
-    private bool isGameActive = false;                          // 게임 진행 상태
+    [Header("Game Settings")]
+    private int currentStage;                                   // 현재 스테이지
+    private bool isGameActive;                                  // 게임 진행 상태
+
+
     private PlayerController playerController;
+    private EnemyController enemyController;
 
     private void Awake()
     {
@@ -24,6 +28,9 @@ public class GameManager : MonoBehaviour
             return;
         }
         Instance = this;
+
+        currentStage = 1;
+        isGameActive = false;
     }
 
     private void Start()
@@ -38,8 +45,16 @@ public class GameManager : MonoBehaviour
     private IEnumerator StartCountdown()
     {
         uiPanel.SetActive(true);
+
         isGameActive = false;
-        if (playerController != null) playerController.enabled = false;
+        if (playerController != null) 
+        {
+            playerController.enabled = false;
+        }
+        if (enemyController != null)
+        {
+            enemyController.enabled = false;
+        }
 
         for (int i = 3; i > 0; i--)
         {
@@ -50,7 +65,14 @@ public class GameManager : MonoBehaviour
 
         // 게임 시작
         isGameActive = true;
-        if (playerController != null) playerController.enabled = true;
+        if (playerController != null)
+        {
+            playerController.enabled = true;
+        }
+        if (enemyController != null)
+        {
+            enemyController.enabled = true;
+        }
     }
 
     // 플레이어 초기 설정
@@ -58,6 +80,13 @@ public class GameManager : MonoBehaviour
     {
         playerController = player.GetComponent<PlayerController>();
         playerController.enabled = false;
+    }
+
+    // 적 초기 설정
+    public void SetEnemy(GameObject enemy)
+    {
+        enemyController = enemy.GetComponent<EnemyController>();
+        enemyController.enabled = false;
     }
 
     // 게임 종료 처리
@@ -93,10 +122,14 @@ public class GameManager : MonoBehaviour
             Destroy(playerController.gameObject);
         }
 
-        // 미로 새로 생성 (초기 세팅 그대로 하면 됌)
-        MazeGenerator.Instance.StartMazeGenerate();
+        // 기존 적 제거
+        if (enemyController != null)
+        {
+            Destroy(enemyController.gameObject);
+        }
 
-        // 카운트다운 후 게임 시작
+        MazeGenerator.Instance.NextMazeGenerate();
+
         StartCoroutine(StartCountdown());
     }
 
@@ -108,5 +141,6 @@ public class GameManager : MonoBehaviour
             EndGame();
         }
     }
+
 
 }
