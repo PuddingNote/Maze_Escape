@@ -19,7 +19,8 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField] private GameObject exitPrefab;     // 출구 프리팹
     [SerializeField] private GameObject playerPrefab;   // 플레이어 프리팹
     [SerializeField] private GameObject enemyPrefab;    // 적 프리팹
-
+    private float mazeWidthSizeInWorld;                 // 미로 가로 사이즈 (World)
+    private float mazeHeightSizeInWorld;                // 미로 세로 사이즈 (World)
 
     private GameObject exitInstance;                    // 출구 인스턴스
     private GameObject playerInstance;                  // 플레이어 인스턴스
@@ -36,8 +37,10 @@ public class MazeGenerator : MonoBehaviour
 
         mazeWidth = 45;
         mazeHeight = 25;
-        minDistanceFromExit = 20f;
-        maxDistanceFromExit = 30f;
+        minDistanceFromExit = 23f;
+        maxDistanceFromExit = 27f;
+        mazeWidthSizeInWorld = 14.4f;
+        mazeHeightSizeInWorld = 8.1f;
     }
 
     // 미로 생성
@@ -161,11 +164,9 @@ public class MazeGenerator : MonoBehaviour
     // 미로를 화면에 그리는 함수
     private void RenderMaze()
     {
-        // 화면 크기 계산
-        Camera mainCamera = Camera.main;
-
-        float screenWidthInWorld = mainCamera.orthographicSize * 2 * mainCamera.aspect;
-        float screenHeightInWorld = mainCamera.orthographicSize * 2;
+        // 1600x900 크기 설정
+        float screenWidthInWorld = mazeWidthSizeInWorld;
+        float screenHeightInWorld = mazeHeightSizeInWorld;
 
         float cellWidth = screenWidthInWorld / mazeWidth;
         float cellHeight = screenHeightInWorld / mazeHeight;
@@ -263,9 +264,8 @@ public class MazeGenerator : MonoBehaviour
     // 월드 좌표로 변환하는 함수
     public Vector3 GetWorldPosition(int x, int y)
     {
-        Camera mainCamera = Camera.main;
-        float screenWidthInWorld = mainCamera.orthographicSize * 2 * mainCamera.aspect;
-        float screenHeightInWorld = mainCamera.orthographicSize * 2;
+        float screenWidthInWorld = mazeWidthSizeInWorld;
+        float screenHeightInWorld = mazeHeightSizeInWorld;
 
         float cellWidth = screenWidthInWorld / mazeWidth;
         float cellHeight = screenHeightInWorld / mazeHeight;
@@ -279,9 +279,8 @@ public class MazeGenerator : MonoBehaviour
     // 월드 좌표를 그리드 좌표로 변환하는 함수
     public Vector2Int GetGridPosition(Vector3 worldPosition)
     {
-        Camera mainCamera = Camera.main;
-        float screenWidthInWorld = mainCamera.orthographicSize * 2 * mainCamera.aspect;
-        float screenHeightInWorld = mainCamera.orthographicSize * 2;
+        float screenWidthInWorld = mazeWidthSizeInWorld;
+        float screenHeightInWorld = mazeHeightSizeInWorld;
 
         float cellWidth = screenWidthInWorld / mazeWidth;
         float cellHeight = screenHeightInWorld / mazeHeight;
