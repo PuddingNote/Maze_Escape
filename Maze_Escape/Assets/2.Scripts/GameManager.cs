@@ -13,6 +13,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트 추가
     [SerializeField] private GameObject uiPanel;                // ui 패널 (카운트다운, 스테이지 text 포함)
     [SerializeField] private GameObject gameOverPanel;          // 게임오버 ui 패널
+    [SerializeField] private GameObject optionPanel;            // 옵션 ui 패널
 
     [Header("Game Settings")]
     private int currentStage;                                   // 현재 스테이지
@@ -45,6 +46,7 @@ public class GameManager : MonoBehaviour
     // 카운트다운 코루틴
     private IEnumerator StartCountdown()
     {
+        optionPanel.SetActive(false);
         uiPanel.SetActive(true);
         gameOverPanel.SetActive(false);
 
@@ -173,6 +175,30 @@ public class GameManager : MonoBehaviour
         }
 
         gameOverPanel.SetActive(true);
+    }
+
+    // 상단 Option 버튼
+    public void OptionButton()
+    {
+        Time.timeScale = 0;
+        isGameActive = false;
+
+        optionPanel.SetActive(true);
+    }
+
+    // 이어하기 버튼
+    public void ResumeButton()
+    {
+        Time.timeScale = 1;
+        isGameActive = true;
+
+        optionPanel.SetActive(false);
+    }
+
+    // 타이틀씬 이동 버튼
+    public void TitleButtton()
+    {
+        SceneManager.LoadScene("TitleScene");
     }
 
     // 재시작 버튼
