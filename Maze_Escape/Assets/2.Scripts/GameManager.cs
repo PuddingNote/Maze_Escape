@@ -198,6 +198,7 @@ public class GameManager : MonoBehaviour
     // 타이틀씬 이동 버튼
     public void TitleButtton()
     {
+        Time.timeScale = 1;
         SceneManager.LoadScene("TitleScene");
     }
 
