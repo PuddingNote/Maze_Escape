@@ -13,7 +13,7 @@ public class EnemyController : MonoBehaviour
 
     private void Awake()
     {
-        moveSpeed = 0.5f;
+        moveSpeed = 0.2f;
         path = new List<Vector2>();
         currentPathIndex = 0;
 
@@ -22,8 +22,8 @@ public class EnemyController : MonoBehaviour
         lineRenderer.startWidth = 0.1f;
         lineRenderer.endWidth = 0.1f;
         lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
-        lineRenderer.startColor = Color.red;
-        lineRenderer.endColor = Color.red;
+        lineRenderer.startColor = Color.blue;
+        lineRenderer.endColor = Color.blue;
         lineRenderer.enabled = false;
     }
 
@@ -140,7 +140,7 @@ public class EnemyController : MonoBehaviour
 
             UpdatePathLine();
 
-            yield return new WaitForSeconds(0.1f);
+            yield return new WaitForSeconds(0.05f);
         }
 
         // 경로 애니메이션 완료 후 콜백 실행
