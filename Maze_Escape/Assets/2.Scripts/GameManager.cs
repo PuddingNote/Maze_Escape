@@ -18,6 +18,7 @@ public class GameManager : MonoBehaviour
     [Header("Game Settings")]
     private int currentStage;                                   // 현재 스테이지
     private bool isGameActive;                                  // 게임 진행 상태
+    private int score;                                          // 점수
 
     private PlayerController playerController;
     private EnemyController enemyController;
@@ -106,11 +107,8 @@ public class GameManager : MonoBehaviour
         }
         else
         {
-#if UNITY_EDITOR
-            UnityEditor.EditorApplication.isPlaying = false;
-#else
-        Application.Quit();
-#endif
+            // 마지막 스테이지 클리어시
+
         }
     }
 
@@ -143,13 +141,46 @@ public class GameManager : MonoBehaviour
         StartCoroutine(StartCountdown());
     }
 
-    // 출구 충돌 확인
+    // 플레이어 출구 충돌 확인
     public void CheckExitCollision(GameObject player, GameObject exit)
     {
         if (isGameActive && player.CompareTag("Player") && exit.CompareTag("Exit"))
         {
-            EndGame();
+            isGameActive = false;
+
+            // 적과 플레이어 이동 제어
+            if (playerController != null)
+            {
+                playerController.enabled = false;
+                Rigidbody2D playerRb = playerController.GetComponent<Rigidbody2D>();
+                if (playerRb != null)
+                {
+                    playerRb.velocity = Vector2.zero;
+                    playerRb.simulated = false;
+                }
+            }
+
+            // 적 경로 표시 및 라인 애니메이션 시작
+            if (enemyController != null)
+            {
+                enemyController.StopMoving();
+                enemyController.ShowPath();
+                enemyController.AnimatePathReduction(() =>
+                {
+                    // 라인 애니메이션이 끝난 후 점수 추가 및 다음 스테이지 이동
+                    int pathDistance = enemyController.GetPathDistance();
+                    AddScore(pathDistance);
+                    EndGame();
+                });
+            }
         }
+    }
+
+    // 점수 추가 함수
+    public void AddScore(int value)
+    {
+        score += value;
+        Debug.Log("Score Added: " + value + " | Total Score: " + score);
     }
 
     // 스테이지 정보 반환 함수
