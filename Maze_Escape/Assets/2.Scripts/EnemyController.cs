@@ -76,7 +76,7 @@ public class EnemyController : MonoBehaviour
     // 스테이지마다 이동속도 0.2f씩 증가
     public void UpdateMoveSpeed(int stage)
     {
-        moveSpeed = 0.5f + (stage - 1) * 0.2f;
+        moveSpeed = 0.2f + (stage - 1) * 0.2f;
     }
 
     // 경로 거리 가져오기
