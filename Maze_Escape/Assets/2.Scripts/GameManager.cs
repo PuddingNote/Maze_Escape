@@ -10,10 +10,12 @@ public class GameManager : MonoBehaviour
 
     [Header("UI Settings")]
     [SerializeField] private TextMeshProUGUI countdownText;     // 카운트다운 텍스트
-    [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트 추가
+    [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트
+    [SerializeField] private TextMeshProUGUI scoreText;         // 점수 텍스트
     [SerializeField] private GameObject uiPanel;                // ui 패널 (카운트다운, 스테이지 text 포함)
     [SerializeField] private GameObject gameOverPanel;          // 게임오버 ui 패널
     [SerializeField] private GameObject optionPanel;            // 옵션 ui 패널
+    [SerializeField] private TextMeshProUGUI scorePopupText;    // 점수 팝업 UI Text
 
     [Header("Game Settings")]
     private int currentStage;                                   // 현재 스테이지
@@ -33,6 +35,7 @@ public class GameManager : MonoBehaviour
         Instance = this;
 
         currentStage = 1;
+        score = 0;
         isGameActive = false;
     }
 
@@ -41,6 +44,7 @@ public class GameManager : MonoBehaviour
         MazeGenerator.Instance.StartMazeGenerate();
 
         stageText.text = "Stage " + currentStage;
+        scoreText.text = "Score: " + score;
         StartCoroutine(StartCountdown());
     }
 
@@ -167,10 +171,9 @@ public class GameManager : MonoBehaviour
                 enemyController.ShowPath();
                 enemyController.AnimatePathReduction(() =>
                 {
-                    // 라인 애니메이션이 끝난 후 점수 추가 및 다음 스테이지 이동
+                    // 라인 애니메이션이 끝난 후 점수 추가
                     int pathDistance = enemyController.GetPathDistance();
                     AddScore(pathDistance);
-                    EndGame();
                 });
             }
         }
@@ -180,7 +183,51 @@ public class GameManager : MonoBehaviour
     public void AddScore(int value)
     {
         score += value;
-        Debug.Log("Score Added: " + value + " | Total Score: " + score);
+        scoreText.text = "Score: " + score;
+
+        ShowScorePopup(value);
+        StartCoroutine(DelayStageTransition());
+    }
+
+    // 스테이지 추가 점수 팝업 효과
+    private void ShowScorePopup(int points)
+    {
+        scorePopupText.text = $"+{points}";
+        scorePopupText.color = new Color(scorePopupText.color.r, scorePopupText.color.g, scorePopupText.color.b, 1);
+
+        StartCoroutine(AnimateScorePopup());
+    }
+
+    // 팝업 효과 코루틴
+    private IEnumerator AnimateScorePopup()
+    {
+        float duration = 1f;
+        float elapsed = 0f;
+
+        Vector3 startPosition = scorePopupText.rectTransform.anchoredPosition;
+        Vector3 endPosition = startPosition + new Vector3(0, 25, 0);
+
+        Color startColor = scorePopupText.color;
+        Color endColor = new Color(startColor.r, startColor.g, startColor.b, 0);
+
+        while (elapsed < duration)
+        {
+            float t = elapsed / duration;
+            scorePopupText.rectTransform.anchoredPosition = Vector3.Lerp(startPosition, endPosition, t);
+            scorePopupText.color = Color.Lerp(startColor, endColor, t);
+
+            elapsed += Time.deltaTime;
+            yield return null;
+        }
+
+        scorePopupText.rectTransform.anchoredPosition = startPosition;
+    }
+
+    // 스테이지 전환 지연 코루틴
+    private IEnumerator DelayStageTransition()
+    {
+        yield return new WaitForSeconds(1f);
+        EndGame();
     }
 
     // 스테이지 정보 반환 함수
