@@ -12,7 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI countdownText;     // 카운트다운 텍스트
     [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트
     [SerializeField] private TextMeshProUGUI scoreText;         // 점수 텍스트
-    [SerializeField] private GameObject uiPanel;                // ui 패널 (카운트다운, 스테이지 text 포함)
+    [SerializeField] private GameObject countdownPanel;         // 카운트다운 패널 (스테이지 text 포함)
     [SerializeField] private GameObject gameOverPanel;          // 게임오버 ui 패널
     [SerializeField] private GameObject optionPanel;            // 옵션 ui 패널
     [SerializeField] private TextMeshProUGUI scorePopupText;    // 점수 팝업 UI Text
@@ -52,7 +52,7 @@ public class GameManager : MonoBehaviour
     private IEnumerator StartCountdown()
     {
         optionPanel.SetActive(false);
-        uiPanel.SetActive(true);
+        countdownPanel.SetActive(true);
         gameOverPanel.SetActive(false);
 
         isGameActive = false;
@@ -70,7 +70,7 @@ public class GameManager : MonoBehaviour
             countdownText.text = i.ToString();
             yield return new WaitForSeconds(1);
         }
-        uiPanel.SetActive(false);
+        countdownPanel.SetActive(false);
 
         // 게임 시작
         isGameActive = true;
