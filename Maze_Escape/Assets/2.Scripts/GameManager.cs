@@ -12,6 +12,7 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI countdownText;     // 카운트다운 텍스트
     [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트
     [SerializeField] private TextMeshProUGUI scoreText;         // 점수 텍스트
+    [SerializeField] private TextMeshProUGUI gameOverScoreText; // 게임오버 점수 텍스트
     [SerializeField] private GameObject countdownPanel;         // 카운트다운 패널 (스테이지 text 포함)
     [SerializeField] private GameObject gameOverPanel;          // 게임오버 ui 패널
     [SerializeField] private GameObject optionPanel;            // 옵션 ui 패널
@@ -251,6 +252,8 @@ public class GameManager : MonoBehaviour
         {
             enemyController.enabled = false;
         }
+
+        gameOverScoreText.text = "Score: " + score;
 
         gameOverPanel.SetActive(true);
     }

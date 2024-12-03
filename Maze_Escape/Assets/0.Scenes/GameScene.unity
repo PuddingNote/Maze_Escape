@@ -3210,7 +3210,8 @@ MonoBehaviour:
   countdownText: {fileID: 1679786262}
   stageText: {fileID: 1212214321}
   scoreText: {fileID: 1609493569}
-  uiPanel: {fileID: 27431483}
+  gameOverScoreText: {fileID: 986801629}
+  countdownPanel: {fileID: 27431483}
   gameOverPanel: {fileID: 246756237}
   optionPanel: {fileID: 1021479192}
   scorePopupText: {fileID: 716584440}
