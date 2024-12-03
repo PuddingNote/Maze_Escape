@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
+// A* 길찾기 알고리즘
 public class EnemyPathfinding : MonoBehaviour
 {
     public static EnemyPathfinding Instance { get; private set; }   // 싱글톤
@@ -16,13 +17,31 @@ public class EnemyPathfinding : MonoBehaviour
         Instance = this;
     }
 
+    // A* 알고리즘의 각 노드에 대한 정보를 저장
+    private class Node
+    {
+        public Vector2 position;                // 노드의 위치
+        public Node parent;                     // 부모 노드
+        public float gCost;                     // 시작 지점으로부터의 비용
+        public float hCost;                     // 목표 지점으로부터의 추정 비용
+        public float fCost => gCost + hCost;    // 총 비용 (gCost + hCost)
+
+        public Node(Vector2 position, Node parent, float gCost, float hCost)
+        {
+            this.position = position;
+            this.parent = parent;
+            this.gCost = gCost;
+            this.hCost = hCost;
+        }
+    }
+
     // A* 알고리즘으로 경로 탐색
     public List<Vector2> FindPath(Vector2 start, Vector2 target)
     {
         List<Vector2> path = new List<Vector2>();
 
-        List<Node> openList = new List<Node>();     // 열린 목록
-        List<Node> closedList = new List<Node>();   // 닫힌 목록
+        List<Node> openList = new List<Node>();     // 열린 목록 : 아직 방문하지 않은 노드의 집합
+        List<Node> closedList = new List<Node>();   // 닫힌 목록 : 이미 방문했거나 갈 수 없는 노드의 집합
 
         // 시작 노드
         Node startNode = new Node(start, null, 0, Vector2.Distance(start, target));
@@ -42,12 +61,12 @@ public class EnemyPathfinding : MonoBehaviour
                     path.Add(currentNode.position);     // 경로 리스트에 추가
                     currentNode = currentNode.parent;   // 부모 노드로 이동
                 }
-                path.Reverse(); // 경로 역순으로
+                path.Reverse(); // 경로 역순으로 정렬
 
                 return path;
             }
 
-            // 인접한 노드를 검사
+            // 현재 노드의 인접 노드를 검사
             foreach (Vector2 neighborPosition in GetNeighbors(currentNode.position))
             {
                 // 벽이거나 이미 검사한 노드는 제외
@@ -94,7 +113,7 @@ public class EnemyPathfinding : MonoBehaviour
         return list.Exists(node => node.position == position);
     }
 
-    // 인접한 노드들을 반환하는 함수
+    // 인접한 노드의 위치를 반환하는 함수
     private List<Vector2> GetNeighbors(Vector2 position)
     {
         return new List<Vector2>
@@ -106,7 +125,7 @@ public class EnemyPathfinding : MonoBehaviour
         };
     }
 
-    // 열린 목록에서 가장 비용이 적은 노드를 찾는 함수
+    // 열린 목록에서 비용(fCost)이 가장 낮은 노드를 찾는 함수
     private Node GetLowestCostNode(List<Node> openList)
     {
         Node lowestCostNode = openList[0];
@@ -116,24 +135,6 @@ public class EnemyPathfinding : MonoBehaviour
                 lowestCostNode = node;
         }
         return lowestCostNode;
-    }
-
-    // A* 알고리즘의 각 노드에 대한 정보를 저장
-    private class Node
-    {
-        public Vector2 position;                // 노드의 위치
-        public Node parent;                     // 부모 노드
-        public float gCost;                     // 시작 지점으로부터의 비용
-        public float hCost;                     // 목표 지점으로부터의 추정 비용
-        public float fCost => gCost + hCost;    // 총 비용 (gCost + hCost)
-
-        public Node(Vector2 position, Node parent, float gCost, float hCost)
-        {
-            this.position = position;
-            this.parent = parent;
-            this.gCost = gCost;
-            this.hCost = hCost;
-        }
     }
 
 
