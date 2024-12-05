@@ -10,8 +10,6 @@ public class MazeGenerator : MonoBehaviour
     [SerializeField] private int mazeWidth;             // 미로의 가로 크기 (홀수로 설정) 이유 : 벽, 벽-길-벽 이어야 하는데 벽-길 이면 문제 발생
     [SerializeField] private int mazeHeight;            // 미로의 세로 크기
     private int[,] maze;                                // 미로 데이터를 저장하는 2D 배열 (0:벽, 1:길)
-    private float minDistanceFromExit;                  // 출구와의 최소 거리 (플레이어,적 배치를 위해)
-    private float maxDistanceFromExit;                  // 출구와의 최대 거리
 
     [Header("UI Settings")]
     [SerializeField] private Transform mazeBoard;       // 미로를 그릴 부모 오브젝트 (Maze Board)
@@ -37,8 +35,6 @@ public class MazeGenerator : MonoBehaviour
 
         mazeWidth = 45;
         mazeHeight = 25;
-        minDistanceFromExit = 23f;
-        maxDistanceFromExit = 27f;
         mazeWidthSizeInWorld = 14.4f;
         mazeHeightSizeInWorld = 8.1f;
     }
@@ -91,41 +87,95 @@ public class MazeGenerator : MonoBehaviour
     // DFS 알고리즘을 사용하여 미로 생성
     private void GenerateMaze()
     {
-        Stack<Vector2> stack = new Stack<Vector2>();
+        bool validMazeGenerated = false;
 
-        // 출구 위치를 시작점으로 설정
-        int exitX = mazeWidth / 2 - 1;
-        int exitY = mazeHeight - 2;
-
-        // 출구위치는 무조건 길로 설정
-        Vector2 currentCell = new Vector2(exitX, exitY);
-        maze[(int)currentCell.x, (int)currentCell.y] = 1;
-
-        stack.Push(currentCell);
-
-        while (stack.Count > 0)
+        while (!validMazeGenerated)
         {
-            Vector2[] neighbors = GetUnvisitedNeighbors(currentCell);
+            InitializeMaze(); // 미로 초기화
 
-            if (neighbors.Length > 0)
+            Stack<Vector2> stack = new Stack<Vector2>();
+
+            // 출구 위치를 시작점으로 설정
+            int exitX = mazeWidth / 2;
+            int exitY = mazeHeight - 2;
+
+            // 출구 위치는 무조건 길로 설정
+            Vector2 currentCell = new Vector2(exitX, exitY);
+            maze[(int)currentCell.x, (int)currentCell.y] = 1;
+
+            stack.Push(currentCell);
+
+            // 두 개의 경로를 생성하기 위해 2개의 시작점을 설정
+            Vector2[] pathStartPoints = {
+            new Vector2(exitX - 1, exitY),
+            new Vector2(exitX + 1, exitY)
+            };
+
+            // 각각의 경로를 생성
+            foreach (var startPoint in pathStartPoints)
             {
-                // 인접한 방문하지 않은 셀이 있을 경우, 랜덤하게 선택
-                Vector2 chosenCell = neighbors[Random.Range(0, neighbors.Length)];
+                currentCell = startPoint;
+                maze[(int)currentCell.x, (int)currentCell.y] = 1;
+                stack.Push(currentCell);
 
-                // 선택된 셀과 현재 셀을 연결 (길 만들기)
-                CarvePathBetweenCells(currentCell, chosenCell);
+                while (stack.Count > 0)
+                {
+                    Vector2[] neighbors = GetUnvisitedNeighbors(currentCell);
 
-                // 선택된 셀을 길로 설정하고 스택에 추가
-                maze[(int)chosenCell.x, (int)chosenCell.y] = 1;
-                stack.Push(chosenCell);
-                currentCell = chosenCell;
+                    if (neighbors.Length > 0)
+                    {
+                        // 인접한 방문하지 않은 셀이 있을 경우, 랜덤하게 선택
+                        Vector2 chosenCell = neighbors[Random.Range(0, neighbors.Length)];
+
+                        // 선택된 셀과 현재 셀을 연결 (길 만들기)
+                        CarvePathBetweenCells(currentCell, chosenCell);
+
+                        // 선택된 셀을 길로 설정하고 스택에 추가
+                        maze[(int)chosenCell.x, (int)chosenCell.y] = 1;
+                        stack.Push(chosenCell);
+                        currentCell = chosenCell;
+                    }
+                    else
+                    {
+                        // 방문할 셀이 없으면 이전 셀로 돌아가기
+                        currentCell = stack.Pop();
+                    }
+                }
             }
-            else
+
+            // 출구와 연결되는 경로가 2개 이상인지 확인
+            if (CountValidPathsToExit() >= 2)
             {
-                // 방문할 셀이 없으면 이전 셀로 돌아가기
-                currentCell = stack.Pop();
+                validMazeGenerated = true;
             }
         }
+    }
+
+    // 미로 경로 2개 이상인지 확인하는 함수
+    private int CountValidPathsToExit()
+    {
+        int validPathCount = 0;
+
+        // 출구 위치
+        int exitX = mazeWidth / 2 - 1;
+        int exitY = mazeHeight - 2;
+        Vector2 currentCell = new Vector2(exitX, exitY);
+
+        Vector2[] startPoints = {
+        new Vector2(exitX - 1, exitY),
+        new Vector2(exitX + 1, exitY)
+        };
+
+        foreach (var startPoint in startPoints)
+        {
+            currentCell = startPoint;
+            if (maze[(int)currentCell.x, (int)currentCell.y] == 1)
+            {
+                validPathCount++;
+            }
+        }
+
+        return validPathCount;
     }
 
     // 인접한 방문하지 않은 셀을 찾는 함수
@@ -164,7 +214,6 @@ public class MazeGenerator : MonoBehaviour
     // 미로를 화면에 그리는 함수
     private void RenderMaze()
     {
-        // 1600x900 크기 설정
         float screenWidthInWorld = mazeWidthSizeInWorld;
         float screenHeightInWorld = mazeHeightSizeInWorld;
 
@@ -210,19 +259,13 @@ public class MazeGenerator : MonoBehaviour
 
         do
         {
-            int randomX = Random.Range(1, mazeWidth - 1);
-            int randomY = Random.Range(1, mazeHeight - 1);
+            int randomX = Random.Range(1, mazeWidth / 2);
+            int randomY = Random.Range(1, mazeHeight / 4);
 
             if (maze[randomX, randomY] == 1)
             {
                 playerPosition = new Vector2Int(randomX, randomY);
-
-                // 출구와의 거리제한 조건 (출구와 거리가 너무 가까워도 안되고, 너무 멀어도 안됨)
-                float distanceFromExit = Vector2.Distance(playerPosition, new Vector2(mazeWidth / 2, mazeHeight - 2));
-                if (distanceFromExit > minDistanceFromExit && distanceFromExit < maxDistanceFromExit)
-                {
-                    break;
-                }
+                break;
             }
         } while (true);
 
@@ -239,19 +282,13 @@ public class MazeGenerator : MonoBehaviour
 
         do
         {
-            int randomX = Random.Range(1, mazeWidth - 1);
-            int randomY = Random.Range(1, mazeHeight - 1);
+            int randomX = Random.Range(mazeWidth / 2, mazeWidth - 1);
+            int randomY = Random.Range(1, mazeHeight / 4);
 
             if (maze[randomX, randomY] == 1)
             {
                 enemyPosition = new Vector2Int(randomX, randomY);
-
-                // 출구와의 거리제한 조건 (출구와 거리가 너무 가까워도 안되고, 너무 멀어도 안됨)
-                float distanceFromExit = Vector2.Distance(enemyPosition, new Vector2(mazeWidth / 2, mazeHeight - 2));
-                if (distanceFromExit > minDistanceFromExit && distanceFromExit < maxDistanceFromExit)
-                {
-                    break;
-                }
+                break;
             }
         } while (true);
 
