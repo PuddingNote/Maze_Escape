@@ -311,6 +311,28 @@ public class GameManager : MonoBehaviour
     public void RestartButton()
     {
         Time.timeScale = 1;
+        isGameActive = false;
+
+        // 플레이어와 적 초기화
+        if (playerController != null)
+        {
+            Destroy(playerController.gameObject);
+        }
+        if (enemyController != null)
+        {
+            Destroy(enemyController.gameObject);
+        }
+
+        // 미로 다시 생성
+        MazeGenerator.Instance.NextMazeGenerate();
+
+        // 카운트다운으로 스테이지 시작
+        StartCoroutine(StartCountdown());
+    }
+
+    public void NewGameButton()
+    {
+        Time.timeScale = 1;
         SceneManager.LoadScene("GameScene");
     }
 
