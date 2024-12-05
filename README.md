@@ -66,4 +66,29 @@
   - GameOver UI : Restart, Quit 버튼 추가
 </br>
 
+[2024-11-30]
+- refactor: 미로 & 오브젝트 사이즈 조정
+</br>
+
+[2024-12-01]
+- feat: Top Panel & Option Panel
+  - 상단 UI창 제작
+  - Option Panel 제작
+    - 게임 퍼즈, 재시작, 타이틀 씬이동
+- feat: Title Scene
+  - 타이틀씬 제작
+</br>
+
+[2024-12-02]
+- feat: Enemy Line Renderer
+  - 플레이어가 출구 도달했을 때 적의 이동 경로 라인이 보이고 점점 줄어드는 애니메이션 제작
+</br>
+
+[2024-12-03]
+- feat: 점수 시스템
+  - 다음 스테이지로 넘어가기전에 +되는 점수 효과 넣어주기
+  - 스테이지 종료 후 라인 그려지고 1초 뒤에 다음 스테이지로 넘어가게 조정
+</br>
+
+
 
