@@ -13,8 +13,10 @@ public class GameManager : MonoBehaviour
     [SerializeField] private TextMeshProUGUI stageText;         // 스테이지 텍스트
     [SerializeField] private TextMeshProUGUI scoreText;         // 점수 텍스트
     [SerializeField] private TextMeshProUGUI gameOverScoreText; // 게임오버 점수 텍스트
+    [SerializeField] private TextMeshProUGUI gameClearScoreText;// 게임클리어 점수 텍스트
     [SerializeField] private GameObject countdownPanel;         // 카운트다운 패널 (스테이지 text 포함)
     [SerializeField] private GameObject gameOverPanel;          // 게임오버 ui 패널
+    [SerializeField] private GameObject gameClearPanel;         // 게임클리어 ui 패널
     [SerializeField] private GameObject optionPanel;            // 옵션 ui 패널
     [SerializeField] private TextMeshProUGUI scorePopupText;    // 점수 팝업 UI Text
 
@@ -55,6 +57,7 @@ public class GameManager : MonoBehaviour
         optionPanel.SetActive(false);
         countdownPanel.SetActive(true);
         gameOverPanel.SetActive(false);
+        gameClearPanel.SetActive(false);
 
         isGameActive = false;
         if (playerController != null) 
@@ -113,7 +116,7 @@ public class GameManager : MonoBehaviour
         else
         {
             // 마지막 스테이지 클리어시
-
+            GameClear();
         }
     }
 
@@ -258,6 +261,27 @@ public class GameManager : MonoBehaviour
         gameOverPanel.SetActive(true);
     }
 
+    // 게임 클리어 처리 함수 추가
+    public void GameClear()
+    {
+        isGameActive = false;
+
+        // 시간 멈추고 플레이어와 적의 조작 비활성화
+        Time.timeScale = 0;
+        if (playerController != null)
+        {
+            playerController.enabled = false;
+        }
+        if (enemyController != null)
+        {
+            enemyController.enabled = false;
+        }
+
+        gameClearScoreText.text = "Score: " + score;
+
+        gameClearPanel.SetActive(true);
+    }
+    
     // 상단 Option 버튼
     public void OptionButton()
     {
