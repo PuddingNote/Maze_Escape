@@ -106,4 +106,5 @@
 - fix: GameOver Panel Restart 버튼을 New Game 버튼으로 변경
 - fix: Quit버튼들을 Title버튼으로 변경
 - build 테스트 완료
+- 제작 완료
 </br>
