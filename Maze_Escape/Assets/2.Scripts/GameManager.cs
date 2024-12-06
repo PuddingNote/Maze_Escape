@@ -186,10 +186,11 @@ public class GameManager : MonoBehaviour
     // 점수 추가 함수
     public void AddScore(int value)
     {
-        score += value;
+        int stageScore = value + (currentStage * 50);
+        score += stageScore;
         scoreText.text = "Score: " + score;
 
-        ShowScorePopup(value);
+        ShowScorePopup(stageScore);
         StartCoroutine(DelayStageTransition());
     }
 
