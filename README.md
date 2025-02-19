@@ -5,6 +5,9 @@
 <img src="https://github.com/user-attachments/assets/58cfd61a-6aec-4ba7-8ca5-76a67d38e412" width="250"></img>
 </br>
 
+<img src="https://github.com/user-attachments/assets/4b55216d-4486-45ab-be83-bfd38875e329" width="500"></img>
+</br>
+
 ## 1. 게임 메커니즘
   - 랜덤한 위치에 플레이어 & 적(AI) 생성
   - 출구까지의 길을 빠르게 찾아 도달하는 게임
